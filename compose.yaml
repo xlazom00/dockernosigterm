@@ -1,0 +1,5 @@
+version: "3.7"
+services:
+  web:
+    stop_grace_period: 40s
+    build: .
