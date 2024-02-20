@@ -1,16 +1,71 @@
-try {
-    while ($true) {
-		Write-Host "I AM ALIVE";
-	  Start-Sleep -Seconds 2; 
-	}
+# Define C# code with a method to handle console control events
+$code = @"
+using System;
+using System.Runtime.InteropServices;
+using System.Threading;
+
+public class ConsoleCtrlHandler {
+    [DllImport("Kernel32")]
+    public static extern bool SetConsoleCtrlHandler(HandlerRoutine Handler, bool Add);
+
+    public delegate bool HandlerRoutine(CtrlTypes CtrlType);
+
+    public enum CtrlTypes {
+        CTRL_C_EVENT = 0,
+        CTRL_BREAK_EVENT,
+        CTRL_CLOSE_EVENT,
+        CTRL_LOGOFF_EVENT = 5,
+        CTRL_SHUTDOWN_EVENT
+    }
+
+    private static bool _shutdownRequested = false;
+    private static bool _shutdownAllowed = false;
+
+    public static void SetShutdownAllowed(bool allowed) {
+        _shutdownAllowed = allowed;
+    }
+
+    public static bool GetShutdownRequested() {
+        return _shutdownRequested;
+    }
+
+    public static bool ConsoleCtrlCheck(CtrlTypes ctrlType) {
+        switch (ctrlType) {
+            case CtrlTypes.CTRL_CLOSE_EVENT:
+            case CtrlTypes.CTRL_SHUTDOWN_EVENT:
+                _shutdownRequested = true;
+                System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                // Wait until the PowerShell script sets _shutdownAllowed to true
+                while (!_shutdownAllowed && stopwatch.Elapsed.TotalSeconds < 120) {
+                    Thread.Sleep(1000); // Check every second
+                }
+                return true; // Indicate that the event has been handled
+            default:
+                return false;
+        } 
+    }
 }
-finally {
-    Write-Host "Entry point SHUTDOWN START";
-    Start-Sleep -Seconds 2;
-	Write-Host "Entry point SHUTDOWN START 2";
-    Start-Sleep -Seconds 2;
-	Write-Host "Entry point SHUTDOWN START 3";
-    Start-Sleep -Seconds 2;
-	Write-Host "Entry point SHUTDOWN START 4";
-    Start-Sleep -Seconds 10;
+"@
+
+# Add the C# type to the current PowerShell session
+Add-Type -TypeDefinition $code -ReferencedAssemblies "System.Runtime.InteropServices"
+
+# Create a delegate for the handler method
+$handler = [ConsoleCtrlHandler+HandlerRoutine]::CreateDelegate([ConsoleCtrlHandler+HandlerRoutine], [ConsoleCtrlHandler], "ConsoleCtrlCheck");
+
+# Register the handler
+[ConsoleCtrlHandler]::SetConsoleCtrlHandler($handler, $true);
+
+# Your script logic here
+Write-Host "Waiting for console control event..."
+while (-not [ConsoleCtrlHandler]::GetShutdownRequested()) {
+    Start-Sleep -Seconds 1;
 }
+
+# Simulate a task that needs to be completed before shutdown
+Write-Host "Shutdown requested, completing tasks..."
+Start-Sleep -Seconds 3 # Replace with actual task
+Write-Host "Tasks completed."
+
+# Allow the shutdown to proceed
+[ConsoleCtrlHandler]::SetShutdownAllowed($true)
