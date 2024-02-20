@@ -63,9 +63,10 @@ while (-not [ConsoleCtrlHandler]::GetShutdownRequested()) {
 }
 
 # Simulate a task that needs to be completed before shutdown
-Write-Host "Shutdown requested, completing tasks..."
-Start-Sleep -Seconds 3 # Replace with actual task
-Write-Host "Tasks completed."
+for ($i = 1; $i -le 20; $i++) {
+    Write-Host "Task progress: $i of 20"
+    Start-Sleep -Seconds 1
+}
 
 # Allow the shutdown to proceed
 [ConsoleCtrlHandler]::SetShutdownAllowed($true)

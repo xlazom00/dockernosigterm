@@ -1,0 +1,26 @@
+{
+    "LogConfig": {
+      "sources": [
+        {
+          "type": "EventLog",
+          "startAtOldestRecord": false,
+          "eventFormatMultiLine": false,
+          "channels": [
+            {
+              "name": "system",
+              "level": "Information"
+            },
+            {
+              "name": "application",
+              "level": "Information"
+            },
+            {
+              "name": "Microsoft-Windows-DSC/Operational",
+              "level": "Information"
+            }
+          ]
+        }
+      ]
+    }
+  }
+  
