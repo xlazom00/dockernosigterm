@@ -20,6 +20,7 @@ public class ConsoleCtrlHandler {
 
     private static bool _shutdownRequested = false;
     private static bool _shutdownAllowed = false;
+    private static int _shutdownType = -1; 
 
     public static void SetShutdownAllowed(bool allowed) {
         _shutdownAllowed = allowed;
@@ -29,7 +30,12 @@ public class ConsoleCtrlHandler {
         return _shutdownRequested;
     }
 
+    public static int GetShutdownType() {
+        return _shutdownType;
+    }
+
     public static bool ConsoleCtrlCheck(CtrlTypes ctrlType) {
+        _shutdownType = (int)ctrlType; 
         switch (ctrlType) {
             case CtrlTypes.CTRL_CLOSE_EVENT:
             case CtrlTypes.CTRL_SHUTDOWN_EVENT:
@@ -61,6 +67,8 @@ Write-Host "Waiting for console control event..."
 while (-not [ConsoleCtrlHandler]::GetShutdownRequested()) {
     Start-Sleep -Seconds 1;
 }
+$shutdownType = [ConsoleCtrlHandler]::GetShutdownType();
+Write-Host "ShutdownType: $shutdownType"
 
 # Simulate a task that needs to be completed before shutdown
 for ($i = 1; $i -le 20; $i++) {
