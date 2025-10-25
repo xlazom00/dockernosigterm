@@ -40,9 +40,10 @@ public class ConsoleCtrlHandler {
             case CtrlTypes.CTRL_CLOSE_EVENT:
             case CtrlTypes.CTRL_SHUTDOWN_EVENT:
                 _shutdownRequested = true;
-                System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                //System.Diagnostics.Stopwatch stopwatch = System.Diagnostics.Stopwatch.StartNew();
                 // Wait until the PowerShell script sets _shutdownAllowed to true
-                while (!_shutdownAllowed && stopwatch.Elapsed.TotalSeconds < 120) {
+                //while (!_shutdownAllowed && stopwatch.Elapsed.TotalSeconds < 120) {
+                while (!_shutdownAllowed) {
                     Thread.Sleep(1000); // Check every second
                 }
                 return true; // Indicate that the event has been handled
@@ -78,3 +79,10 @@ for ($i = 1; $i -le 20; $i++) {
 
 # Allow the shutdown to proceed
 [ConsoleCtrlHandler]::SetShutdownAllowed($true)
+
+Write-Host "Allow shutdown to proceed"
+Start-Sleep -Seconds 1
+[ConsoleCtrlHandler]::SetConsoleCtrlHandler($handler, $false)
+Start-Sleep -Seconds 1
+
+
