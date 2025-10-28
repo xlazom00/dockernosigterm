@@ -1,13 +1,16 @@
 # dockernosigterm
 
-SIGTERM seems not to be properly handled by docker when working with a windows container.
+docker build -t dockernosigterm --no-cache=true .
 
-Steps to reproduce:
+docker run -it --stop-timeout=180 --name dockernosigterm dockernosigterm:latest
 
-* docker compose build
-* docker compose up
-* ctrl + c to stop gracefully the container
+docker run -it --isolation=process --stop-timeout=180 --name dockernosigterm dockernosigterm:latest
 
-You can see docker is not waiting for the script to complete.
+docker start -i  dockernosigterm 
 
-If you run the entrypoint on it's own in powershell, and pres ctrl+c, it will wait before returning to host.
+docker stop  dockernosigterm 
+
+docker rm  dockernosigterm 
+
+
+
