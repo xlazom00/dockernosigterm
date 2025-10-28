@@ -72,8 +72,8 @@ $shutdownType = [ConsoleCtrlHandler]::GetShutdownType();
 Write-Host "ShutdownType: $shutdownType"
 
 # Simulate a task that needs to be completed before shutdown
-for ($i = 1; $i -le 20; $i++) {
-    Write-Host "Task progress: $i of 20"
+for ($i = 1; $i -le 120; $i++) {
+    Write-Host "Task progress: $i of 120"
     Start-Sleep -Seconds 1
 }
 
